@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  # app:
+  #   build:
+  #     context: ./dockerfiles
+  #     dockerfile: nginx.dockerfile
+  #     args:
+  #       - UID=${UID:-1000}
+  #       - GID=${GID:-1000}
+  #   ports:
+  #     - "802:80"
+  #     # - "80:80"
+  #   volumes:
+  #     - ./src:/var/www/html:delegated
+  #   depends_on:
+  #     - php
+  #     - mysql
+  #   networks:
+  #     - laravel
+
+  mysql:
+    image: mariadb:10.6
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: dt_maria_db
+      MYSQL_USER: ashborn
+      MYSQL_PASSWORD: placidusax
+      MYSQL_ROOT_PASSWORD: placidusax
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./data/mysql:/var/lib/mysql
