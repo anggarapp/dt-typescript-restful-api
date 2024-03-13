@@ -1,9 +1,11 @@
+import { User } from "@prisma/client";
 import { primsaClient } from "../application/database";
 import { ResponseError } from "../error/response-error";
-import { CreateUserRequest, UserResponse, toUserResponse } from "../model/user-model";
+import { CreateUserRequest, LoginUserRequest, UpdateUserRequest, UserResponse, toUserResponse } from "../model/user-model";
 import { UserValidation } from "../validation/user-validation";
 import { Validation } from "../validation/validation";
 import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 
 export class UserService {
     static async register(request: CreateUserRequest): Promise<UserResponse> {
@@ -25,5 +27,60 @@ export class UserService {
         });
 
         return toUserResponse(user)
+    }
+
+    static async login(request: LoginUserRequest): Promise<UserResponse> {
+        const loginRequest = Validation.validate(UserValidation.LOGIN, request);
+        let user = await primsaClient.user.findUnique({
+            where: {
+                username: loginRequest.username
+            }
+        })
+
+        if (!user) {
+            throw new ResponseError(401, "Username or password is wrong");
+        }
+
+        const isPasswordValid = await bcrypt.compare(loginRequest.password, user.password);
+        if (!isPasswordValid) {
+            throw new ResponseError(401, "Username or password is wrong");
+        }
+
+        user = await primsaClient.user.update({
+            where: {
+                username: loginRequest.username
+            },
+            data: {
+                token: uuid()
+            }
+        })
+
+        const response = toUserResponse(user);
+        response.token = user.token!;
+        return response;
+    }
+
+    static async get(user: User): Promise<UserResponse> {
+        return toUserResponse(user);
+    }
+
+    static async update(user: User, request: UpdateUserRequest): Promise<UserResponse> {
+        const updateRequest = Validation.validate(UserValidation.UPDATE, request);
+
+        if (updateRequest.name) {
+            user.name = updateRequest.name;
+        }
+        if (updateRequest.password) {
+            user.password = await bcrypt.hash(updateRequest.password, 10);
+        }
+
+        const result = await primsaClient.user.update({
+            where: {
+                username: user.username
+            },
+            data: user
+        });
+
+        return toUserResponse(result)
     }
 }
