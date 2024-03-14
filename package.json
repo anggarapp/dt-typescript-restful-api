@@ -4,7 +4,9 @@
   "description": "dump tutorial of restful api typescript",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --runInBand",
+    "test-par": "jest",
+    "test-seq": "jest --runInBand"
   },
   "jest": {
     "transform": {

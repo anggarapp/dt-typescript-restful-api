@@ -17,7 +17,7 @@ describe('POST /api/users', () => {
                 password: "",
                 name: "",
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(400);
         expect(response.body.errors).toBeDefined();
     });
@@ -30,7 +30,7 @@ describe('POST /api/users', () => {
                 password: "test",
                 name: "test",
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(200);
         expect(response.body.data.username).toBe("test");
         expect(response.body.data.name).toBe("test");
@@ -53,7 +53,7 @@ describe('POST /api/users/login', () => {
                 username: "test",
                 password: "test"
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(200);
         expect(response.body.data.username).toBe("test");
         expect(response.body.data.name).toBe("test");
@@ -67,7 +67,7 @@ describe('POST /api/users/login', () => {
                 username: "tost",
                 password: "test"
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(401);
         expect(response.body.errors).toBeDefined();
     });
@@ -79,7 +79,7 @@ describe('POST /api/users/login', () => {
                 username: "test",
                 password: "tost"
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(401);
         expect(response.body.errors).toBeDefined();
     });
@@ -98,7 +98,7 @@ describe("GET /api/users/current", () => {
         const response = await supertest(web)
             .get("/api/users/current")
             .set("X-API-TOKEN", "test");
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(200);
         expect(response.body.data.name).toBe("test");
         expect(response.body.data.username).toBe("test");
@@ -108,7 +108,7 @@ describe("GET /api/users/current", () => {
         const response = await supertest(web)
             .get("/api/users/current")
             .set("X-API-TOKEN", "toss");
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(401);
         expect(response.body.errors).toBeDefined();
     });
@@ -132,7 +132,7 @@ describe('PATCH /api/users/current', () => {
                 password: "",
                 name: ""
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(400);
         expect(response.body.errors).toBeDefined();
     });
@@ -145,7 +145,7 @@ describe('PATCH /api/users/current', () => {
                 password: "benar",
                 name: "benar"
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(401);
         expect(response.body.errors).toBeDefined();
     });
@@ -156,7 +156,7 @@ describe('PATCH /api/users/current', () => {
             .send({
                 name: "benar"
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(200);
         expect(response.body.data.name).toBe("benar");
     });
@@ -167,9 +167,42 @@ describe('PATCH /api/users/current', () => {
             .send({
                 password: "benar",
             });
-        logger.debug(response.body);
+        // logger.debug(response.body);
         expect(response.status).toBe(200);
         const user = await UserTest.get();
         expect(await bcrypt.compare("benar", user.password)).toBe(true);
     });
+});
+
+describe('DELETE /api/users/current', () => {
+    beforeEach(async () => {
+        await UserTest.create();
+    });
+
+    afterEach(async () => {
+        await UserTest.delete();
+    });
+
+    it('should be able to logout', async () => {
+        const response = await supertest(web)
+            .delete("/api/users/current")
+            .set("X-API-TOKEN", "test");
+        // logger.debug(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBe("OK");
+
+        const user = await UserTest.get();
+        expect(user.token).toBeNull();
+    })
+    it('should reject logout if token is wrong', async () => {
+        const response = await supertest(web)
+            .delete("/api/users/current")
+            .set("X-API-TOKEN", "tesi");
+        // logger.debug(response.body);
+        expect(response.status).toBe(401);
+        expect(response.body.errors).toBeDefined();
+
+        const user = await UserTest.get();
+        expect(user.token).toBe("test");
+    })
 });
