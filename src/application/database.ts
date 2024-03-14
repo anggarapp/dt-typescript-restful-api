@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "./logging";
 
-export const primsaClient = new PrismaClient({
+export const prismaClient = new PrismaClient({
     log: [
         {
             emit: "event",
@@ -22,18 +22,18 @@ export const primsaClient = new PrismaClient({
     ]
 });
 
-primsaClient.$on("error", (e) => {
+prismaClient.$on("error", (e) => {
     logger.error(e);
 })
 
-primsaClient.$on("warn", (e) => {
+prismaClient.$on("warn", (e) => {
     logger.warn(e);
 })
 
-primsaClient.$on("info", (e) => {
+prismaClient.$on("info", (e) => {
     logger.info(e);
 })
 
-primsaClient.$on("query", (e) => {
+prismaClient.$on("query", (e) => {
     logger.info(e);
 })

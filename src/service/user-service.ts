@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { primsaClient } from "../application/database";
+import { prismaClient } from "../application/database";
 import { ResponseError } from "../error/response-error";
 import { CreateUserRequest, LoginUserRequest, UpdateUserRequest, UserResponse, toUserResponse } from "../model/user-model";
 import { UserValidation } from "../validation/user-validation";
@@ -10,7 +10,7 @@ import { v4 as uuid } from "uuid";
 export class UserService {
     static async register(request: CreateUserRequest): Promise<UserResponse> {
         const registerRequest = Validation.validate(UserValidation.REGISTER, request)
-        const totalUserWithSameUsername = await primsaClient.user.count({
+        const totalUserWithSameUsername = await prismaClient.user.count({
             where: {
                 username: registerRequest.username
             }
@@ -22,7 +22,7 @@ export class UserService {
 
         registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
 
-        const user = await primsaClient.user.create({
+        const user = await prismaClient.user.create({
             data: registerRequest
         });
 
@@ -31,7 +31,7 @@ export class UserService {
 
     static async login(request: LoginUserRequest): Promise<UserResponse> {
         const loginRequest = Validation.validate(UserValidation.LOGIN, request);
-        let user = await primsaClient.user.findUnique({
+        let user = await prismaClient.user.findUnique({
             where: {
                 username: loginRequest.username
             }
@@ -46,7 +46,7 @@ export class UserService {
             throw new ResponseError(401, "Username or password is wrong");
         }
 
-        user = await primsaClient.user.update({
+        user = await prismaClient.user.update({
             where: {
                 username: loginRequest.username
             },
@@ -74,7 +74,7 @@ export class UserService {
             user.password = await bcrypt.hash(updateRequest.password, 10);
         }
 
-        const result = await primsaClient.user.update({
+        const result = await prismaClient.user.update({
             where: {
                 username: user.username
             },
@@ -85,7 +85,7 @@ export class UserService {
     }
 
     static async logout(user: User): Promise<UserResponse> {
-        const result = await primsaClient.user.update({
+        const result = await prismaClient.user.update({
             where: {
                 username: user.username
             },

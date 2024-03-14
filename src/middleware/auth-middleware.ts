@@ -1,10 +1,10 @@
 import { NextFunction, Response } from "express"
-import { primsaClient } from "../application/database";
+import { prismaClient } from "../application/database";
 import { UserRequest } from "../type/user-request";
 export const authMiddleware = async (req: UserRequest, res: Response, next: NextFunction) => {
     const token = req.get('X-API-TOKEN');
     if (token) {
-        const user = await primsaClient.user.findFirst({
+        const user = await prismaClient.user.findFirst({
             where: {
                 token: token
             }

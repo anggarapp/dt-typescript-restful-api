@@ -1,10 +1,10 @@
-import { User } from "@prisma/client";
-import { primsaClient } from "../src/application/database";
+import { Contact, User } from "@prisma/client";
+import { prismaClient } from "../src/application/database";
 import bcrypt from "bcrypt";
 
 export class UserTest {
     static async delete() {
-        await primsaClient.user.deleteMany({
+        await prismaClient.user.deleteMany({
             where: {
                 username: "test"
             }
@@ -12,7 +12,7 @@ export class UserTest {
     }
 
     static async create() {
-        await primsaClient.user.create({
+        await prismaClient.user.create({
             data: {
                 username: "test",
                 name: "test",
@@ -23,7 +23,7 @@ export class UserTest {
     }
 
     static async get(): Promise<User> {
-        const user = await primsaClient.user.findFirst({
+        const user = await prismaClient.user.findFirst({
             where: {
                 username: "test"
             }
@@ -37,10 +37,35 @@ export class UserTest {
 
 export class ContactTest {
     static async deleteAll() {
-        await primsaClient.contact.deleteMany({
+        await prismaClient.contact.deleteMany({
             where: {
                 username: "test"
             }
         })
+    }
+
+    static async create() {
+        await prismaClient.contact.create({
+            data: {
+                first_name: "test",
+                last_name: "test",
+                email: "test@test.com",
+                phone: "000000000",
+                username: "test"
+            }
+        })
+    }
+
+    static async get(): Promise<Contact> {
+        const contact = await prismaClient.contact.findFirst({
+            where: {
+                username: "test"
+            }
+        })
+        if (!contact) {
+            throw new Error("Contact Not Found")
+        }
+        return contact
+
     }
 }
