@@ -13,6 +13,23 @@ export type CreateContactRequest = {
     email?: string;
     phone?: string;
 }
+export type UpdateContactRequest = {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+    phone?: string;
+}
+
+export type SearchContactRequest = {
+    name?: string;
+    phone?: string;
+    email?: string;
+    page: number;
+    size: number;
+
+
+}
 
 export function toContactResponse(contact: Contact): ContactResponse {
     return {
